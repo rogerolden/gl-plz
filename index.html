@@ -87,6 +87,8 @@ input::placeholder{color:rgba(244,232,228,.3)}
 .link{background:none;border:0;padding:0;font-family:var(--label);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);text-decoration:underline;align-self:flex-start}
 .err{color:#ff8d8d;font-size:15px;margin:0}
 [hidden]{display:none!important}
+.only-gl,.gl .only-early{display:none!important}
+.gl .only-gl{display:block!important}
 
 hr{border:0;border-top:1px solid var(--rule);margin:0;width:100%}
 .sched{display:flex;flex-direction:column;gap:18px}
@@ -120,7 +122,8 @@ footer .tag:last-child{text-align:right}
 
   <section class="intro">
     <h2>Come celebrate with me</h2>
-    <p>Birthday + new residency. Pizza and bubbles for everyone from <span class="time">21:00</span>. Then we dance.</p>
+    <p class="only-early">Birthday + new residency. Pizza and bubbles for everyone from <span class="time">21:00</span>. Then we dance.</p>
+    <p class="only-gl">Birthday + new residency. Guest list entry from <span class="time">22:00</span>. Then we dance.</p>
   </section>
 
   <section class="ask" id="ask">
@@ -189,7 +192,7 @@ footer .tag:last-child{text-align:right}
 
     <p class="err" id="err" role="alert" hidden></p>
     <button type="submit" class="btn solid cta" id="send">Confirm RSVP</button>
-    <button type="button" class="link" id="back">Change time</button>
+    <button type="button" class="link only-early" id="back">Change time</button>
   </form>
 
   <section class="done" id="done" hidden>
@@ -208,8 +211,8 @@ footer .tag:last-child{text-align:right}
   <section class="sched">
     <h2>The night</h2>
     <dl>
-      <dt>21:00</dt>
-      <dd><strong>Birthday + residency toast</strong><span>Pizza and bubbles.</span></dd>
+      <dt class="only-early">21:00</dt>
+      <dd class="only-early"><strong>Birthday + residency toast</strong><span>Pizza and bubbles.</span></dd>
       <dt>22:00</dt>
       <dd><strong>Guest list entry opens</strong></dd>
       <dt>22&#8211;03</dt>
@@ -240,6 +243,9 @@ var MAX = { p1: 3, p2: 8 };
 var s = { mode: "", p1: 0, p2: 0, veg: 0, vegan: 0, late: false, busy: false, spots: null };
 
 function showClosed() { $("ask").hidden = true; $("form").hidden = true; $("done").hidden = true; $("closed").hidden = false; }
+// Guest-list-only link: add ?gl to the address. It shows the 22:00 form and nothing about the first hour.
+var GL_ONLY = /(^|[?&#])gl\b/.test(location.search + location.hash);
+if (GL_ONLY) document.body.classList.add("gl");
 if (new Date() > CLOSES) showClosed();
 if (INSTAGRAM) { $("insta").href = INSTAGRAM; $("insta").hidden = false; }
 
@@ -287,7 +293,8 @@ function loadSpots() {
     .then(function (n) { s.spots = typeof n === "number" ? n : null; render(); })
     .catch(function () {});
 }
-loadSpots();
+if (GL_ONLY) { if (new Date() <= CLOSES) { s.mode = "b"; $("ask").hidden = true; $("form").hidden = false; render(); } }
+else loadSpots();
 
 // 201 = saved. 409 = this name is on the list already, also fine.
 function save(row) {
