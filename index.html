@@ -68,7 +68,8 @@ button,.cta{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .shake{animation:shake .28s linear}
 @media (prefers-reduced-motion:reduce){.shake{animation:none}}
 
-form{display:flex;flex-direction:column;gap:30px}
+form,#lates{display:flex;flex-direction:column;gap:30px}
+#lates:empty{display:none}
 .block{display:flex;flex-direction:column;gap:16px}
 .block h3{font-size:13px;display:flex;justify-content:space-between;gap:12px;align-items:baseline}
 .block h3 span{font-family:var(--label);font-size:15px;letter-spacing:.06em;color:var(--mute)}
@@ -168,27 +169,10 @@ footer .tag:last-child{text-align:right}
           <button type="button" data-k="vegan" data-d="1" aria-label="One more vegan">+</button>
         </div>
       </div>
-      <button type="button" class="link" id="lateon">+ Friends who come after 22:00</button>
     </div>
 
-    <div class="block" id="late" hidden>
-      <p class="note" id="latenote">The first hour is kept small. More friends are very welcome from <span class="time">22:00</span>. Add them here.</p>
-      <h3>Guest list <span class="time">from 22:00</span></h3>
-      <div class="fields">
-        <label for="f2">First name<input id="f2" name="f2" maxlength="40"></label>
-        <label for="l2">Last name<input id="l2" name="l2" maxlength="40"></label>
-      </div>
-      <p class="hint">Name at the door.</p>
-      <div class="row">
-        <span class="lab" id="p2lab">Plus ones</span>
-        <div class="step" role="group" aria-labelledby="p2lab">
-          <button type="button" data-k="p2" data-d="-1" aria-label="One less plus one">&minus;</button>
-          <output id="p2">+0</output>
-          <button type="button" data-k="p2" data-d="1" aria-label="One more plus one">+</button>
-        </div>
-      </div>
-      <button type="button" class="link" id="lateoff">Remove this entry</button>
-    </div>
+    <div id="lates"></div>
+    <button type="button" class="link" id="lateon">+ Friends who come after 22:00</button>
 
     <p class="err" id="err" role="alert" hidden></p>
     <button type="submit" class="btn solid cta" id="send">Confirm RSVP</button>
@@ -237,10 +221,9 @@ var CLOSES = new Date("2026-11-20T20:00:00+01:00");
 // Link to an Instagram channel for updates. Empty hides the link.
 var INSTAGRAM = "";
 
-var EARLY_CAP = 40;
+var EARLY_CAP = 40, MAX_P1 = 3, MAX_LATE_P = 8, MAX_LATES = 3;
 var $ = function (id) { return document.getElementById(id); };
-var MAX = { p1: 3, p2: 8 };
-var s = { mode: "", p1: 0, p2: 0, veg: 0, vegan: 0, late: false, busy: false, spots: null };
+var s = { mode: "", p1: 0, veg: 0, vegan: 0, lates: [], busy: false, spots: null };
 
 function showClosed() { $("ask").hidden = true; $("form").hidden = true; $("done").hidden = true; $("closed").hidden = false; }
 // The plain address shows the 22:00 guest list only. The close-friends link carries a code (?in=...).
@@ -251,39 +234,78 @@ var GL_ONLY = true;
 if (new Date() > CLOSES) showClosed();
 if (INSTAGRAM) { $("insta").href = INSTAGRAM; $("insta").hidden = false; }
 
+// One 22:00 guest list entry: a name and up to +8. A 21:00 guest can add up to three.
+var lateSeq = 0;
+function addLate() {
+  if (s.lates.length >= MAX_LATES) return;
+  var n = ++lateSeq, el = document.createElement("div"), L = { el: el, p: 0, n: n };
+  el.className = "block";
+  el.innerHTML =
+    '<p class="note">The first hour is kept small. More friends are very welcome from <span class="time">22:00</span>. Add them here.</p>' +
+    '<h3>Guest list <span class="time">from 22:00</span></h3>' +
+    '<div class="fields">' +
+      '<label for="lf' + n + '">First name<input id="lf' + n + '" maxlength="40"></label>' +
+      '<label for="ll' + n + '">Last name<input id="ll' + n + '" maxlength="40"></label>' +
+    '</div>' +
+    '<p class="hint">Name at the door.</p>' +
+    '<div class="row"><span class="lab" id="lp' + n + '">Plus ones</span>' +
+      '<div class="step" role="group" aria-labelledby="lp' + n + '">' +
+        '<button type="button" data-d="-1" aria-label="One less plus one">&minus;</button>' +
+        '<output>+0</output>' +
+        '<button type="button" data-d="1" aria-label="One more plus one">+</button>' +
+      '</div></div>' +
+    '<button type="button" class="link rm">Remove this entry</button>';
+  el.querySelectorAll(".step button").forEach(function (b) {
+    b.addEventListener("click", function () { L.p = Math.max(0, Math.min(MAX_LATE_P, L.p + (+b.dataset.d))); render(); });
+  });
+  el.querySelector(".rm").addEventListener("click", function () { s.lates.splice(s.lates.indexOf(L), 1); el.remove(); render(); });
+  $("lates").appendChild(el); s.lates.push(L); render();
+  return L;
+}
+function clearLates() { s.lates = []; $("lates").innerHTML = ""; }
+
 function render() {
   var party = 1 + s.p1;
   if (s.veg + s.vegan > party) { s.vegan = Math.min(s.vegan, party); s.veg = Math.min(s.veg, party - s.vegan); }
-  $("p1").textContent = "+" + s.p1; $("p2").textContent = "+" + s.p2;
-  $("veg").textContent = s.veg; $("vegan").textContent = s.vegan;
+  $("p1").textContent = "+" + s.p1; $("veg").textContent = s.veg; $("vegan").textContent = s.vegan;
   var full = s.spots === 0;
   $("pick21").disabled = full; $("fullhint").hidden = !full;
   $("blockA").hidden = s.mode !== "a";
-  $("late").hidden = !(s.mode === "b" || s.late);
-  $("latenote").hidden = s.mode === "b"; $("lateoff").hidden = s.mode === "b";
-  $("lateon").hidden = s.late;
-  var lim = { p1: [0, MAX.p1], p2: [0, MAX.p2], veg: [0, party - s.vegan], vegan: [0, party - s.veg] };
-  document.querySelectorAll(".step button").forEach(function (b) {
-    var k = b.dataset.k, d = +b.dataset.d, v = s[k] + d;
-    b.disabled = v < lim[k][0] || (v > lim[k][1] && !(k === "p1" && !s.late));
+  var lim = { p1: MAX_P1, veg: party - s.vegan, vegan: party - s.veg };
+  document.querySelectorAll("#blockA .step button").forEach(function (b) {
+    var k = b.dataset.k, v = s[k] + (+b.dataset.d);
+    b.disabled = v < 0 || (v > lim[k] && !(k === "p1" && !s.lates.length));
   });
+  s.lates.forEach(function (L, i) {
+    L.el.querySelector("output").textContent = "+" + L.p;
+    var bs = L.el.querySelectorAll(".step button"); bs[0].disabled = L.p === 0; bs[1].disabled = L.p === MAX_LATE_P;
+    L.el.querySelector(".note").hidden = s.mode === "b" || i > 0;
+    L.el.querySelector(".rm").hidden = s.mode === "b";
+  });
+  $("lateon").hidden = s.mode !== "a" || s.lates.length >= MAX_LATES;
+  $("lateon").textContent = s.lates.length ? "+ Another name for 22:00" : "+ Friends who come after 22:00";
   $("send").disabled = s.busy;
   $("send").textContent = s.busy ? "Sending" : "Confirm RSVP";
 }
 
-document.querySelectorAll(".step button").forEach(function (b) {
+document.querySelectorAll("#blockA .step button").forEach(function (b) {
   b.addEventListener("click", function () {
     var k = b.dataset.k, d = +b.dataset.d;
-    if (k === "p1" && d > 0 && s.p1 === MAX.p1) { s.late = true; render(); $("f2").focus(); return; }
+    if (k === "p1" && d > 0 && s.p1 === MAX_P1) { var L = addLate(); if (L) $("lf" + L.n).focus(); return; }
     s[k] += d; render();
   });
 });
-function pick(mode) { s.mode = mode; $("err").hidden = true; $("ask").hidden = true; $("form").hidden = false; render(); $(mode === "a" ? "f1" : "f2").focus(); }
+function pick(mode) {
+  s.mode = mode; $("err").hidden = true; $("ask").hidden = true; $("form").hidden = false;
+  clearLates();
+  if (mode === "b") { var L = addLate(); render(); $("lf" + L.n).focus(); }
+  else { render(); $("f1").focus(); }
+}
 $("pick21").addEventListener("click", function () { pick("a"); });
 $("pick22").addEventListener("click", function () { pick("b"); });
 $("back").addEventListener("click", function () { $("form").hidden = true; $("ask").hidden = false; });
-$("lateon").addEventListener("click", function () { s.late = true; render(); $("f2").focus(); });
-$("lateoff").addEventListener("click", function () { s.late = false; s.p2 = 0; $("f2").value = ""; $("l2").value = ""; render(); });
+$("lateon").addEventListener("click", function () { var L = addLate(); if (L) $("lf" + L.n).focus(); });
+
 function val(id) { return $(id).value.replace(/\s+/g, " ").trim(); }
 function fail(msg, focusId) { $("err").textContent = msg; $("err").hidden = false; if (focusId) $(focusId).focus(); }
 var HEAD = { "apikey": SB_KEY, "Content-Type": "application/json", "Prefer": "return=minimal" };
@@ -295,7 +317,7 @@ function loadSpots() {
     .then(function (n) { s.spots = typeof n === "number" ? n : null; render(); })
     .catch(function () {});
 }
-function startGuestList() { if (new Date() <= CLOSES) { s.mode = "b"; $("ask").hidden = true; $("form").hidden = false; render(); } }
+function startGuestList() { if (new Date() <= CLOSES) { s.mode = "b"; $("ask").hidden = true; $("form").hidden = false; clearLates(); addLate(); } }
 function startFull() { GL_ONLY = false; document.body.classList.remove("gl"); if (new Date() <= CLOSES) { $("form").hidden = true; $("ask").hidden = false; } loadSpots(); }
 if (KEY && window.crypto && crypto.subtle) {
   $("ask").hidden = true;
@@ -310,11 +332,7 @@ function save(row) {
   return fetch(SB_URL + "/rest/v1/rsvps", { method: "POST", headers: HEAD, body: JSON.stringify(row) })
     .then(function (r) {
       if (r.status === 201 || r.status === 409) return "ok";
-      return r.text().then(function (t) {
-        // Database not updated yet: save without the food counts.
-        if ("vegetarian" in row && /PGRST204|vegetarian|vegan/.test(t)) { var c = Object.assign({}, row); delete c.vegetarian; delete c.vegan; return save(c); }
-        return /first hour full/.test(t) ? "full" : "error";
-      });
+      return r.text().then(function (t) { return /first hour full/.test(t) ? "full" : "error"; });
     });
 }
 
@@ -330,10 +348,10 @@ $("form").addEventListener("submit", function (e) {
     if (s.spots !== null && 1 + s.p1 > s.spots) return fail(s.spots === 0 ? "The first hour is full. Join us from 22:00." : "Only " + s.spots + " places left in the first hour. Bring fewer plus ones, or add friends for 22:00.");
     rows.push({ entry: "21:00", first_name: f1, last_name: l1, plus_ones: s.p1, vegetarian: s.veg, vegan: s.vegan, group_id: gid });
   }
-  if (s.mode === "b" || s.late) {
-    var f2 = val("f2"), l2 = val("l2");
-    if (!f2 || !l2) return fail(s.mode === "b" ? "Enter your first and last name." : "Enter a first and last name for the 22:00 entry, or remove it.", f2 ? "l2" : "f2");
-    rows.push({ entry: "22:00", first_name: f2, last_name: l2, plus_ones: s.p2, group_id: gid });
+  for (var i = 0; i < s.lates.length; i++) {
+    var L = s.lates[i], f = val("lf" + L.n), l = val("ll" + L.n);
+    if (!f || !l) return fail(s.mode === "b" ? "Enter your first and last name." : "Enter a first and last name for each 22:00 entry, or remove it.", (f ? "ll" : "lf") + L.n);
+    rows.push({ entry: "22:00", first_name: f, last_name: l, plus_ones: L.p, group_id: gid });
   }
   s.busy = true; render();
   // Save the 21:00 row first. If the first hour is full, nothing else is saved.
