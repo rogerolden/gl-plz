@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>SÜDA guest list</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600&family=Krona+One&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one working column. Counters first, then two plain-text lists with a copy button each. */
+:root{
+  color-scheme:dark;
+  --ink:#0a0203;
+  --panel:#170608;
+  --red:#d81f26;
+  --bone:#f4e8e4;
+  --mute:rgba(244,232,228,.62);
+  --rule:rgba(244,232,228,.28);
+  --display:"Krona One","Arial Black",Arial,sans-serif;
+  --label:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--bone);font-family:var(--body);font-size:17px;line-height:1.5}
+main{max-width:560px;margin:0 auto;padding:28px 22px 56px;display:flex;flex-direction:column;gap:32px}
+h1{font-family:var(--display);font-weight:400;font-size:20px;text-transform:uppercase;margin:0}
+h2{font-family:var(--display);font-weight:400;font-size:13px;text-transform:uppercase;margin:0}
+form,section{display:flex;flex-direction:column;gap:16px}
+label,.lab{display:flex;flex-direction:column;gap:6px;font-family:var(--label);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+input{font-family:var(--body);font-size:18px;color:var(--bone);background:transparent;border:0;border-bottom:1px solid var(--bone);border-radius:0;padding:10px 2px;width:100%}
+button{font-family:var(--display);font-size:13px;text-transform:uppercase;padding:14px 12px;border:1px solid var(--bone);background:var(--bone);color:var(--ink);border-radius:0;cursor:pointer}
+button.ghost{background:transparent;color:var(--bone)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{border:1px solid var(--rule);padding:14px;display:flex;flex-direction:column;gap:2px}
+.stat b{font-family:var(--display);font-weight:400;font-size:30px;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat.main{grid-column:1/-1;border-color:var(--bone)}
+.stat small{font-size:14px;color:var(--mute)}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+pre{margin:0;background:var(--panel);border:1px solid var(--rule);padding:14px;font-family:var(--body);font-size:16px;white-space:pre-wrap;word-break:break-word;min-height:52px;user-select:all;-webkit-user-select:all}
+.err{color:#ff8d8d;margin:0}
+.row{display:flex;gap:12px}
+.row button{flex:1}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <h1>SÜDA guest list</h1>
+
+  <form id="login">
+    <label for="email">Email<input id="email" type="email" autocomplete="username" required></label>
+    <label for="pw">Password<input id="pw" type="password" autocomplete="current-password" required></label>
+    <p class="err" id="err" role="alert" hidden></p>
+    <button type="submit" id="go">Log in</button>
+  </form>
+
+  <div id="app" hidden>
+    <section>
+      <div class="stats">
+        <div class="stat main"><span class="lab">Coming 21&#8211;22</span><b id="nEarly">0</b><small id="sEarly"></small></div>
+        <div class="stat"><span class="lab">After 22</span><b id="nLate">0</b><small id="sLate"></small></div>
+        <div class="stat"><span class="lab">All night</span><b id="nAll">0</b><small>people</small></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="lab">Vegetarian</span><b id="nVeg">0</b></div>
+        <div class="stat"><span class="lab">Vegan</span><b id="nVegan">0</b></div>
+        <div class="stat main"><span class="lab">Eat everything</span><b id="nAny">0</b><small>Pizza counts are for the 21&#8211;22 group only</small></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="head"><h2>21:00 list</h2><button type="button" data-copy="early">Copy</button></div>
+      <pre id="early"></pre>
+    </section>
+    <section>
+      <div class="head"><h2>22:00 list</h2><button type="button" data-copy="late">Copy</button></div>
+      <pre id="late"></pre>
+    </section>
+    <section>
+      <div class="head"><h2>Both lists</h2><button type="button" data-copy="all">Copy</button></div>
+      <pre id="all"></pre>
+    </section>
+    <div class="row">
+      <button type="button" class="ghost" id="refresh">Refresh</button>
+      <button type="button" class="ghost" id="logout">Log out</button>
+    </div>
+  </div>
+</main>
+
+<script>
+var SB_URL = "https://tmchdphvqfwhpbuyzpif.supabase.co";
+var SB_KEY = "sb_publishable_dUjo5R0MUfAvDpfBdv1e3A_GIEJi3gT";
+var $ = function (id) { return document.getElementById(id); };
+var token = null;
+try { token = sessionStorage.getItem("gl_token"); } catch (e) {}
+
+function fail(msg) { $("err").textContent = msg; $("err").hidden = false; }
+function show(loggedIn) { $("login").hidden = loggedIn; $("app").hidden = !loggedIn; }
+function line(r) { return r.first_name + " " + r.last_name + (r.plus_ones ? " +" + r.plus_ones : ""); }
+function people(rows) { return rows.reduce(function (n, r) { return n + 1 + r.plus_ones; }, 0); }
+
+function load() {
+  return fetch(SB_URL + "/rest/v1/rsvps?select=entry,first_name,last_name,plus_ones,vegetarian,vegan&order=first_name,last_name", {
+    headers: { apikey: SB_KEY, Authorization: "Bearer " + token }
+  }).then(function (r) {
+    if (r.status === 401 || r.status === 403) throw new Error("auth");
+    if (!r.ok) throw new Error("load");
+    return r.json();
+  }).then(function (rows) {
+    var early = rows.filter(function (r) { return r.entry === "21:00"; });
+    var late = rows.filter(function (r) { return r.entry === "22:00"; });
+    var veg = early.reduce(function (n, r) { return n + (r.vegetarian || 0); }, 0);
+    var vegan = early.reduce(function (n, r) { return n + (r.vegan || 0); }, 0);
+    $("nEarly").textContent = people(early); $("sEarly").textContent = "people, from " + early.length + " names";
+    $("nLate").textContent = people(late); $("sLate").textContent = "people, " + late.length + " names";
+    $("nAll").textContent = people(rows);
+    $("nVeg").textContent = veg; $("nVegan").textContent = vegan; $("nAny").textContent = people(early) - veg - vegan;
+    $("early").textContent = early.map(line).join("\n");
+    $("late").textContent = late.map(line).join("\n");
+    $("all").textContent = "21:00\n" + early.map(line).join("\n") + "\n\n22:00\n" + late.map(line).join("\n");
+    show(true);
+  }).catch(function (e) {
+    token = null; try { sessionStorage.removeItem("gl_token"); } catch (x) {}
+    show(false);
+    fail(e.message === "auth" ? "Log in again." : "Could not load the list. Check that the owner SQL ran, then try again.");
+  });
+}
+
+$("login").addEventListener("submit", function (e) {
+  e.preventDefault();
+  $("err").hidden = true; $("go").disabled = true;
+  fetch(SB_URL + "/auth/v1/token?grant_type=password", {
+    method: "POST", headers: { apikey: SB_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ email: $("email").value.trim(), password: $("pw").value })
+  }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+    .then(function (res) {
+      $("go").disabled = false;
+      if (!res.ok || !res.j.access_token) return fail("Wrong email or password.");
+      token = res.j.access_token; $("pw").value = "";
+      try { sessionStorage.setItem("gl_token", token); } catch (x) {}
+      return load();
+    }).catch(function () { $("go").disabled = false; fail("Could not reach the server. Try again."); });
+});
+
+document.querySelectorAll("[data-copy]").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var text = $(b.dataset.copy).textContent, done = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy"; }, 1500); };
+    navigator.clipboard.writeText(text).then(done).catch(function () {
+      var r = document.createRange(); r.selectNodeContents($(b.dataset.copy));
+      var sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      b.textContent = "Selected. Press copy.";
+    });
+  });
+});
+$("refresh").addEventListener("click", load);
+$("logout").addEventListener("click", function () { token = null; try { sessionStorage.removeItem("gl_token"); } catch (x) {} show(false); });
+if (token) load();
+</script>
+</body>
+</html>
