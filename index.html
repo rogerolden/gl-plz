@@ -54,7 +54,9 @@ main{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:28px 22px
 .choice{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .choice .btn{font-size:12px;line-height:1.5;padding:16px 10px}
 .choice .btn b{display:block;font-weight:400;font-size:17px}
-.link.no{text-decoration:line-through;cursor:not-allowed}
+.choice .btn{background:rgba(244,232,228,.1);transition:background .12s,color .12s}
+.choice .btn i{display:block;font-style:normal;font-size:18px;margin-top:6px}
+.choice .btn:hover:not([disabled]),.choice .btn:active:not([disabled]){background:var(--bone);color:var(--ink)}
 button,.cta{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .btn{font-family:var(--display);font-size:15px;text-transform:uppercase;padding:18px 12px;border:1px solid var(--bone);background:transparent;color:var(--bone);border-radius:0;text-align:center;text-decoration:none;display:block}
 .btn.solid{background:var(--bone);color:var(--ink)}
@@ -123,13 +125,12 @@ footer .tag:last-child{text-align:right}
 
   <section class="ask" id="ask">
     <h2>When are you coming?</h2>
+    <p class="hint">Choose one.</p>
     <div class="choice">
-      <button type="button" class="btn solid" id="pick21"><b class="time">21&#8211;22</b>Birthday hangout</button>
-      <button type="button" class="btn" id="pick22"><b class="time">After 22</b>Guest list</button>
+      <button type="button" class="btn" id="pick21"><b class="time">21&#8211;22</b>Birthday hangout<i aria-hidden="true">&rarr;</i></button>
+      <button type="button" class="btn" id="pick22"><b class="time">After 22</b>Guest list<i aria-hidden="true">&rarr;</i></button>
     </div>
     <p class="hint" id="fullhint" hidden>The first hour is full. Join us from 22:00.</p>
-    <button type="button" class="link no" id="no" aria-disabled="true">Not coming</button>
-    <p class="hint" id="nohint" aria-live="polite"></p>
   </section>
 
   <form id="form" hidden novalidate>
@@ -275,12 +276,6 @@ $("pick22").addEventListener("click", function () { pick("b"); });
 $("back").addEventListener("click", function () { $("form").hidden = true; $("ask").hidden = false; });
 $("lateon").addEventListener("click", function () { s.late = true; render(); $("f2").focus(); });
 $("lateoff").addEventListener("click", function () { s.late = false; s.p2 = 0; $("f2").value = ""; $("l2").value = ""; render(); });
-$("no").addEventListener("click", function () {
-  var b = $("no");
-  b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake");
-  $("nohint").textContent = "No is not on the menu tonight.";
-});
-
 function val(id) { return $(id).value.replace(/\s+/g, " ").trim(); }
 function fail(msg, focusId) { $("err").textContent = msg; $("err").hidden = false; if (focusId) $(focusId).focus(); }
 var HEAD = { "apikey": SB_KEY, "Content-Type": "application/json", "Prefer": "return=minimal" };
