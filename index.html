@@ -68,9 +68,13 @@ button,.cta{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .shake{animation:shake .28s linear}
 @media (prefers-reduced-motion:reduce){.shake{animation:none}}
 
-form,#lates{display:flex;flex-direction:column;gap:30px}
+form,#lates{display:flex;flex-direction:column;gap:40px}
+form>.block+.block,form>#lates,#lates>.block+.block,form>#blockFood{padding-top:32px;border-top:1px solid var(--rule)}
+form>#lates:empty{padding:0;border:0}
+.q{margin:0;font-size:17px}
+output.plain{font-family:var(--display);font-size:16px;width:52px;text-align:center;font-variant-numeric:tabular-nums;margin-right:49px}
 #lates:empty{display:none}
-.block{display:flex;flex-direction:column;gap:16px}
+.block{display:flex;flex-direction:column;gap:22px}
 .block h3{font-size:13px;display:flex;justify-content:space-between;gap:12px;align-items:baseline}
 .block h3 span{font-family:var(--label);font-size:15px;letter-spacing:.06em;color:var(--mute)}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -152,7 +156,11 @@ footer .tag:last-child{text-align:right}
           <button type="button" data-k="p1" data-d="1" aria-label="One more plus one">+</button>
         </div>
       </div>
-      <h3>Pizza <span>The rest eat everything</span></h3>
+    </div>
+
+    <div class="block" id="blockFood">
+      <h3>Pizza</h3>
+      <p class="q" id="foodq">How many in your group want vegetarian or vegan pizza?</p>
       <div class="row">
         <span class="lab" id="veglab">Vegetarian</span>
         <div class="step" role="group" aria-labelledby="veglab">
@@ -168,6 +176,10 @@ footer .tag:last-child{text-align:right}
           <output id="vegan">0</output>
           <button type="button" data-k="vegan" data-d="1" aria-label="One more vegan">+</button>
         </div>
+      </div>
+      <div class="row">
+        <span class="lab">Eats everything</span>
+        <output class="plain" id="anyfood">1</output>
       </div>
     </div>
 
@@ -270,9 +282,11 @@ function render() {
   $("p1").textContent = "+" + s.p1; $("veg").textContent = s.veg; $("vegan").textContent = s.vegan;
   var full = s.spots === 0;
   $("pick21").disabled = full; $("fullhint").hidden = !full;
-  $("blockA").hidden = s.mode !== "a";
+  $("blockA").hidden = s.mode !== "a"; $("blockFood").hidden = s.mode !== "a";
+  $("anyfood").textContent = party - s.veg - s.vegan;
+  $("foodq").textContent = party === 1 ? "Do you want vegetarian or vegan pizza? Leave both at 0 if you eat everything." : "You are " + party + " people. How many want vegetarian or vegan pizza?";
   var lim = { p1: MAX_P1, veg: party - s.vegan, vegan: party - s.veg };
-  document.querySelectorAll("#blockA .step button").forEach(function (b) {
+  document.querySelectorAll("#form [data-k]").forEach(function (b) {
     var k = b.dataset.k, v = s[k] + (+b.dataset.d);
     b.disabled = v < 0 || (v > lim[k] && !(k === "p1" && !s.lates.length));
   });
@@ -288,7 +302,7 @@ function render() {
   $("send").textContent = s.busy ? "Sending" : "Confirm RSVP";
 }
 
-document.querySelectorAll("#blockA .step button").forEach(function (b) {
+document.querySelectorAll("#form [data-k]").forEach(function (b) {
   b.addEventListener("click", function () {
     var k = b.dataset.k, d = +b.dataset.d;
     if (k === "p1" && d > 0 && s.p1 === MAX_P1) { var L = addLate(); if (L) $("lf" + L.n).focus(); return; }
