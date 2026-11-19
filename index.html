@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roger That at SÜDA RSVP</title>
+<meta name="robots" content="noindex">
+<meta property="og:title" content="Roger That at SÜDA · Fri Nov 20">
+<meta property="og:description" content="Birthday + residency. RSVP.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600&family=Krona+One&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one poster column. Red duotone photo fixed behind, outline type on top, form as plain ruled rows. */
+:root{
+  color-scheme:dark;
+  --ink:#0a0203;
+  --oxblood:#3a0709;
+  --red:#d81f26;
+  --bone:#f4e8e4;
+  --mute:rgba(244,232,228,.62);
+  --rule:rgba(244,232,228,.28);
+  --display:"Krona One","Arial Black","Helvetica Neue",Arial,sans-serif;
+  --label:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--ink)}
+body{margin:0;background:var(--ink);color:var(--bone);font-family:var(--body);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.bg{position:fixed;inset:0;z-index:0;background:var(--ink) url("bg.jpg") center top/cover no-repeat}
+.bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,2,3,.05) 0%,rgba(10,2,3,.3) 45%,rgba(10,2,3,.82) 100%)}
+main{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:28px 22px 56px;display:flex;flex-direction:column;gap:40px}
+
+.outline{font-family:var(--display);text-transform:uppercase;color:transparent;-webkit-text-stroke:1px var(--bone);letter-spacing:.01em}
+@supports not (-webkit-text-stroke:1px #fff){.outline{color:var(--bone)}}
+.tag{font-family:var(--display);font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--bone)}
+
+.poster{display:flex;flex-direction:column;gap:0;min-height:520px}
+.poster .top{display:flex;justify-content:space-between;align-items:flex-start}
+.poster .mid{margin:auto 0;padding:56px 0;text-align:center;display:flex;flex-direction:column;gap:26px;align-items:center}
+.logo{font-size:clamp(56px,19vw,92px);line-height:1;margin:0;-webkit-text-stroke-width:1.6px}
+.act{font-size:clamp(17px,5.4vw,24px);line-height:1.25;margin:0}
+.poster .bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
+.poster .bottom .tag:last-child{text-align:right}
+
+.intro{display:flex;flex-direction:column;gap:14px}
+.intro h2{font-family:var(--display);font-weight:400;font-size:19px;line-height:1.3;text-transform:uppercase;margin:0;text-wrap:balance}
+.intro p{margin:0;color:var(--bone)}
+.time{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.ask{display:flex;flex-direction:column;gap:16px}
+.ask h2,.block h3{font-family:var(--display);font-weight:400;text-transform:uppercase;margin:0}
+.ask h2{font-size:15px}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button,.cta{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn{font-family:var(--display);font-size:15px;text-transform:uppercase;padding:18px 12px;border:1px solid var(--bone);background:transparent;color:var(--bone);border-radius:0;text-align:center;text-decoration:none;display:block}
+.btn.solid{background:var(--bone);color:var(--ink)}
+.btn[disabled]{opacity:.6;cursor:default}
+.btn.no{border-color:var(--rule);color:var(--mute);text-decoration:line-through;cursor:not-allowed}
+.btn:focus-visible,input:focus-visible,.step button:focus-visible,.link:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.hint{font-size:14px;color:var(--mute);margin:0;min-height:1.5em}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.shake{animation:shake .28s linear}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}}
+
+form{display:flex;flex-direction:column;gap:30px}
+.block{display:flex;flex-direction:column;gap:16px}
+.block h3{font-size:13px;display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.block h3 span{font-family:var(--label);font-size:15px;letter-spacing:.06em;color:var(--mute)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:360px){.fields{grid-template-columns:1fr}}
+label{display:flex;flex-direction:column;gap:6px;font-family:var(--label);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+input{font-family:var(--body);font-size:18px;color:var(--bone);background:rgba(10,2,3,.45);border:0;border-bottom:1px solid var(--bone);border-radius:0;padding:10px 2px;width:100%;min-width:0}
+input::placeholder{color:rgba(244,232,228,.3)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.row .lab{font-family:var(--label);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.step{display:flex;align-items:center;border:1px solid var(--bone)}
+.step button{width:48px;height:48px;background:transparent;border:0;font-size:24px;line-height:1;color:var(--bone)}
+.step button[disabled]{color:var(--rule);cursor:default}
+.step output{width:52px;text-align:center;font-family:var(--display);font-size:16px;font-variant-numeric:tabular-nums}
+.note{border-left:2px solid var(--red);padding:2px 0 2px 14px;margin:0;color:var(--bone)}
+.link{background:none;border:0;padding:0;font-family:var(--label);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);text-decoration:underline;align-self:flex-start}
+.err{color:#ff8d8d;font-size:15px;margin:0}
+[hidden]{display:none!important}
+
+hr{border:0;border-top:1px solid var(--rule);margin:0;width:100%}
+.sched{display:flex;flex-direction:column;gap:18px}
+.sched h2{font-family:var(--display);font-weight:400;font-size:13px;text-transform:uppercase;margin:0}
+.sched dl{margin:0;display:grid;grid-template-columns:auto 1fr;column-gap:18px;row-gap:16px}
+.sched dt{font-family:var(--display);font-size:14px;font-variant-numeric:tabular-nums;padding-top:3px}
+.sched dd{margin:0}
+.sched dd strong{display:block;font-weight:600}
+.sched dd span{color:var(--mute);font-size:15px}
+footer{display:flex;justify-content:space-between;gap:16px;align-items:flex-end}
+footer .tag:last-child{text-align:right}
+.done{display:flex;flex-direction:column;gap:14px}
+.done h2{font-size:22px;line-height:1.2;margin:0}
+.done p{margin:0}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+<main>
+
+  <header class="poster">
+    <div class="top">
+      <span class="tag">Stockholm</span>
+      <span class="tag">Fri Nov 20</span>
+    </div>
+    <div class="mid">
+      <h1 class="logo outline">Süda</h1>
+      <p class="act outline">Roger That<br>Birthday + Residency</p>
+    </div>
+    <div class="bottom">
+      <span class="tag">Friends<br>+ close friends</span>
+      <span class="tag time">21&#8211;03</span>
+    </div>
+  </header>
+
+  <section class="intro">
+    <h2>Come celebrate with me</h2>
+    <p>Birthday + new residency. Pizza and bubbles from <span class="time">21:00</span>. Then we dance.</p>
+  </section>
+
+  <section class="ask" id="ask">
+    <h2>Are you coming?</h2>
+    <div class="choice">
+      <button type="button" class="btn solid" id="yes">Yes</button>
+      <button type="button" class="btn no" id="no" aria-disabled="true">No</button>
+    </div>
+    <p class="hint" id="nohint" aria-live="polite"></p>
+  </section>
+
+  <form id="form" hidden novalidate>
+    <div class="block">
+      <h3>Your name <span class="time">21:00</span></h3>
+      <div class="fields">
+        <label for="f1">First name<input id="f1" name="f1" autocomplete="given-name" maxlength="40" required></label>
+        <label for="l1">Last name<input id="l1" name="l1" autocomplete="family-name" maxlength="40" required></label>
+      </div>
+      <div class="row">
+        <span class="lab" id="p1lab">Plus ones</span>
+        <div class="step" role="group" aria-labelledby="p1lab">
+          <button type="button" id="p1minus" aria-label="One less plus one">&minus;</button>
+          <output id="p1" aria-live="polite">+0</output>
+          <button type="button" id="p1plus" aria-label="One more plus one">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="block">
+      <label for="email">Email, optional<input id="email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="For news about my next nights"></label>
+    </div>
+
+    <div class="block" id="late" hidden>
+      <p class="note">The first hour is kept small. More friends are very welcome from <span class="time">22:00</span>. Add them here.</p>
+      <h3>Guest list entry <span class="time">from 22:00</span></h3>
+      <div class="fields">
+        <label for="f2">First name<input id="f2" name="f2" maxlength="40"></label>
+        <label for="l2">Last name<input id="l2" name="l2" maxlength="40"></label>
+      </div>
+      <p class="hint">Name at the door.</p>
+      <div class="row">
+        <span class="lab" id="p2lab">Plus ones</span>
+        <div class="step" role="group" aria-labelledby="p2lab">
+          <button type="button" id="p2minus" aria-label="One less plus one">&minus;</button>
+          <output id="p2" aria-live="polite">+0</output>
+          <button type="button" id="p2plus" aria-label="One more plus one">+</button>
+        </div>
+      </div>
+      <button type="button" class="link" id="lateoff">Remove this entry</button>
+    </div>
+
+    <p class="err" id="err" role="alert" hidden></p>
+    <button type="submit" class="btn solid cta" id="send">Confirm RSVP</button>
+  </form>
+
+  <section class="done" id="done" hidden>
+    <h2 class="outline">See ü Friday</h2>
+    <p>Ü are on the list.</p>
+    <a class="link" id="insta" href="#" hidden>Get news about my next nights</a>
+  </section>
+
+  <section class="done" id="closed" hidden>
+    <h2 class="outline">List closed</h2>
+    <p>RSVPs closed Friday 20:00. Send me a DM.</p>
+  </section>
+
+  <hr>
+
+  <section class="sched">
+    <h2>The night</h2>
+    <dl>
+      <dt>21:00</dt>
+      <dd><strong>Birthday + residency toast</strong><span>Pizza and bubbles.</span></dd>
+      <dt>22:00</dt>
+      <dd><strong>Guest list entry opens</strong></dd>
+      <dt>22&#8211;03</dt>
+      <dd><strong>Roger That + SÜDA residents</strong></dd>
+    </dl>
+  </section>
+
+  <hr>
+
+  <footer>
+    <span class="tag">SÜDA</span>
+    <span class="tag">23+<br>Bring ID</span>
+  </footer>
+</main>
+
+<script>
+// Supabase project. The publishable key is public by design: guests can add a row and nothing else.
+var SB_URL = "https://tmchdphvqfwhpbuyzpif.supabase.co";
+var SB_KEY = "sb_publishable_dUjo5R0MUfAvDpfBdv1e3A_GIEJi3gT";
+// RSVPs close Friday 20:00 Stockholm time. The database checks this too.
+var CLOSES = new Date("2026-11-20T20:00:00+01:00");
+// Link to an Instagram channel for updates. Empty hides the link.
+var INSTAGRAM = "";
+
+var $ = function (id) { return document.getElementById(id); };
+var MAX1 = 2, MAX2 = 8;
+var s = { p1: 0, p2: 0, late: false, busy: false };
+
+function showClosed() { $("ask").hidden = true; $("form").hidden = true; $("done").hidden = true; $("closed").hidden = false; }
+if (new Date() > CLOSES) showClosed();
+if (INSTAGRAM) { $("insta").href = INSTAGRAM; $("insta").hidden = false; }
+
+function render() {
+  $("p1").textContent = "+" + s.p1;
+  $("p2").textContent = "+" + s.p2;
+  $("p1minus").disabled = s.p1 === 0;
+  $("p1plus").disabled = s.p1 === MAX1 && s.late;
+  $("p2minus").disabled = s.p2 === 0;
+  $("p2plus").disabled = s.p2 === MAX2;
+  $("late").hidden = !s.late;
+  $("send").disabled = s.busy;
+  $("send").textContent = s.busy ? "Sending" : "Confirm RSVP";
+}
+
+$("yes").addEventListener("click", function () { $("ask").hidden = true; $("form").hidden = false; $("f1").focus(); });
+$("no").addEventListener("click", function () {
+  var b = $("no");
+  b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake");
+  $("nohint").textContent = "No is not on the menu tonight.";
+});
+$("p1minus").addEventListener("click", function () { if (s.p1 > 0) s.p1--; render(); });
+$("p1plus").addEventListener("click", function () {
+  if (s.p1 < MAX1) { s.p1++; }
+  else if (!s.late) { s.late = true; render(); $("f2").focus(); return; }
+  render();
+});
+$("p2minus").addEventListener("click", function () { if (s.p2 > 0) s.p2--; render(); });
+$("p2plus").addEventListener("click", function () { if (s.p2 < MAX2) s.p2++; render(); });
+$("lateoff").addEventListener("click", function () { s.late = false; s.p2 = 0; $("f2").value = ""; $("l2").value = ""; render(); });
+
+function val(id) { return $(id).value.replace(/\s+/g, " ").trim(); }
+function fail(msg, focusId) { $("err").textContent = msg; $("err").hidden = false; if (focusId) $(focusId).focus(); }
+
+$("form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  if (s.busy) return;
+  $("err").hidden = true;
+  var email = val("email"), gid = Math.random().toString(36).slice(2, 10);
+  var rows = [{ entry: "21:00", first_name: val("f1"), last_name: val("l1"), plus_ones: s.p1, email: email || null, group_id: gid }];
+  if (!rows[0].first_name) return fail("Enter your first name.", "f1");
+  if (!rows[0].last_name) return fail("Enter your last name.", "l1");
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail("Check the email address, or leave it empty.", "email");
+  if (s.late) {
+    var f2 = val("f2"), l2 = val("l2");
+    if (!f2 || !l2) return fail("Enter a first and last name for the 22:00 entry, or remove it.", f2 ? "l2" : "f2");
+    rows.push({ entry: "22:00", first_name: f2, last_name: l2, plus_ones: s.p2, email: null, group_id: gid });
+  }
+  s.busy = true; render();
+  // One request per row. 201 = saved, 409 = this name is on the list already (also fine).
+  Promise.all(rows.map(function (row) {
+    return fetch(SB_URL + "/rest/v1/rsvps", {
+      method: "POST",
+      headers: { "apikey": SB_KEY, "Content-Type": "application/json", "Prefer": "return=minimal" },
+      body: JSON.stringify(row)
+    }).then(function (r) { return r.status; });
+  })).then(function (codes) {
+    s.busy = false; render();
+    var ok = codes.every(function (c) { return c === 201 || c === 409; });
+    if (ok) { $("form").hidden = true; $("done").hidden = false; $("done").scrollIntoView({ block: "center" }); }
+    else if (new Date() > CLOSES) showClosed();
+    else fail("Could not save. Try again in a moment.");
+  }).catch(function () { s.busy = false; render(); fail("Could not send. Check your connection and try again."); });
+});
+render();
+</script>
+</body>
+</html>
