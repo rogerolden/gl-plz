@@ -105,7 +105,7 @@ footer .tag:last-child{text-align:right}
 .done p{margin:0}
 </style>
 </head>
-<body>
+<body class="gl">
 <div class="bg" aria-hidden="true"></div>
 <main>
 
@@ -243,9 +243,11 @@ var MAX = { p1: 3, p2: 8 };
 var s = { mode: "", p1: 0, p2: 0, veg: 0, vegan: 0, late: false, busy: false, spots: null };
 
 function showClosed() { $("ask").hidden = true; $("form").hidden = true; $("done").hidden = true; $("closed").hidden = false; }
-// Guest-list-only link: add ?gl to the address. It shows the 22:00 form and nothing about the first hour.
-var GL_ONLY = /(^|[?&#])gl\b/.test(location.search + location.hash);
-if (GL_ONLY) document.body.classList.add("gl");
+// The plain address shows the 22:00 guest list only. The close-friends link carries a code (?in=...).
+// Only the SHA-256 of the code is stored here, so the code cannot be read from this file.
+var KEY_HASH = "7ff8a69ed66d8e3565cee3ada78f72ec88d12669679ce7a54f1eef1fa3a50a2d";
+var KEY = (/[?&#]in=([\w-]+)/.exec(location.search + location.hash) || [])[1];
+var GL_ONLY = true;
 if (new Date() > CLOSES) showClosed();
 if (INSTAGRAM) { $("insta").href = INSTAGRAM; $("insta").hidden = false; }
 
@@ -293,8 +295,15 @@ function loadSpots() {
     .then(function (n) { s.spots = typeof n === "number" ? n : null; render(); })
     .catch(function () {});
 }
-if (GL_ONLY) { if (new Date() <= CLOSES) { s.mode = "b"; $("ask").hidden = true; $("form").hidden = false; render(); } }
-else loadSpots();
+function startGuestList() { if (new Date() <= CLOSES) { s.mode = "b"; $("ask").hidden = true; $("form").hidden = false; render(); } }
+function startFull() { GL_ONLY = false; document.body.classList.remove("gl"); if (new Date() <= CLOSES) { $("form").hidden = true; $("ask").hidden = false; } loadSpots(); }
+if (KEY && window.crypto && crypto.subtle) {
+  $("ask").hidden = true;
+  crypto.subtle.digest("SHA-256", new TextEncoder().encode(KEY)).then(function (buf) {
+    var hex = Array.prototype.map.call(new Uint8Array(buf), function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
+    if (hex === KEY_HASH) startFull(); else startGuestList();
+  }).catch(startGuestList);
+} else startGuestList();
 
 // 201 = saved. 409 = this name is on the list already, also fine.
 function save(row) {
