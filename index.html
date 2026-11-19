@@ -108,6 +108,7 @@ footer .tag:last-child{text-align:right}
 .done{display:flex;flex-direction:column;gap:14px}
 .done h2{font-size:22px;line-height:1.2;margin:0}
 .done p{margin:0}
+.done .btn{margin-top:10px;background:rgba(244,232,228,.1)}
 </style>
 </head>
 <body class="gl">
@@ -125,7 +126,7 @@ footer .tag:last-child{text-align:right}
     </div>
   </header>
 
-  <section class="intro">
+  <section class="intro" id="intro">
     <h2>Come celebrate with me</h2>
     <p class="only-early">Birthday + new residency. Pizza and bubbles for everyone from <span class="time">21:00</span>. Then we dance.</p>
     <p class="only-gl">Birthday + new residency. Guest list entry from <span class="time">22:00</span>. Then we dance.</p>
@@ -194,6 +195,7 @@ footer .tag:last-child{text-align:right}
   <section class="done" id="done" hidden>
     <h2 class="outline">See ü Friday</h2>
     <p>Ü are on the list.</p>
+    <button type="button" class="btn" id="more">Add more to the guest list</button>
     <a class="link" id="insta" href="#" hidden>Get news about my next nights</a>
   </section>
 
@@ -341,6 +343,14 @@ if (KEY && window.crypto && crypto.subtle) {
   }).catch(startGuestList);
 } else startGuestList();
 
+// "Add more": back to the start of this link's own form. The guest list link never shows the first hour.
+$("more").addEventListener("click", function () {
+  s.p1 = 0; s.veg = 0; s.vegan = 0; s.mode = ""; $("f1").value = ""; $("l1").value = ""; $("err").hidden = true;
+  clearLates(); $("done").hidden = true; $("intro").hidden = false;
+  if (GL_ONLY) startGuestList(); else { $("form").hidden = true; $("ask").hidden = false; loadSpots(); }
+  render(); $("intro").scrollIntoView({ block: "start" });
+});
+
 // 201 = saved. 409 = this name is on the list already, also fine.
 function save(row) {
   return fetch(SB_URL + "/rest/v1/rsvps", { method: "POST", headers: HEAD, body: JSON.stringify(row) })
@@ -373,7 +383,7 @@ $("form").addEventListener("submit", function (e) {
     return p.then(function (res) { return res === "ok" ? save(row) : res; });
   }, Promise.resolve("ok")).then(function (res) {
     s.busy = false; render();
-    if (res === "ok") { $("form").hidden = true; $("done").hidden = false; $("done").scrollIntoView({ block: "center" }); }
+    if (res === "ok") { $("form").hidden = true; $("intro").hidden = true; $("done").hidden = false; $("done").scrollIntoView({ block: "center" }); }
     else if (res === "full") { loadSpots(); fail("The first hour just filled up. Tap \"Change time\" and join us from 22:00."); }
     else if (new Date() > CLOSES) showClosed();
     else fail("Could not save. Try again in a moment.");
