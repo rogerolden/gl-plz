@@ -280,10 +280,10 @@ function render() {
     L.el.querySelector("output").textContent = "+" + L.p;
     var bs = L.el.querySelectorAll(".step button"); bs[0].disabled = L.p === 0; bs[1].disabled = L.p === MAX_LATE_P;
     L.el.querySelector(".note").hidden = s.mode === "b" || i > 0;
-    L.el.querySelector(".rm").hidden = s.mode === "b";
+    L.el.querySelector(".rm").hidden = s.mode === "b" && i === 0;
   });
-  $("lateon").hidden = s.mode !== "a" || s.lates.length >= MAX_LATES;
-  $("lateon").textContent = s.lates.length ? "+ Another name for 22:00" : "+ Friends who come after 22:00";
+  $("lateon").hidden = !s.mode || s.lates.length >= MAX_LATES;
+  $("lateon").textContent = s.mode === "b" ? "+ Another name" : s.lates.length ? "+ Another name for 22:00" : "+ Friends who come after 22:00";
   $("send").disabled = s.busy;
   $("send").textContent = s.busy ? "Sending" : "Confirm RSVP";
 }
@@ -350,7 +350,7 @@ $("form").addEventListener("submit", function (e) {
   }
   for (var i = 0; i < s.lates.length; i++) {
     var L = s.lates[i], f = val("lf" + L.n), l = val("ll" + L.n);
-    if (!f || !l) return fail(s.mode === "b" ? "Enter your first and last name." : "Enter a first and last name for each 22:00 entry, or remove it.", (f ? "ll" : "lf") + L.n);
+    if (!f || !l) return fail(s.mode === "b" && s.lates.length === 1 ? "Enter your first and last name." : "Enter a first and last name for each entry, or remove it.", (f ? "ll" : "lf") + L.n);
     rows.push({ entry: "22:00", first_name: f, last_name: l, plus_ones: L.p, group_id: gid });
   }
   s.busy = true; render();
