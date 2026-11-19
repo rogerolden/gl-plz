@@ -52,6 +52,9 @@ main{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:28px 22px
 .ask h2,.block h3{font-family:var(--display);font-weight:400;text-transform:uppercase;margin:0}
 .ask h2{font-size:15px}
 .choice{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.choice .btn{font-size:12px;line-height:1.5;padding:16px 10px}
+.choice .btn b{display:block;font-weight:400;font-size:17px}
+.link.no{text-decoration:line-through;cursor:not-allowed}
 button,.cta{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .btn{font-family:var(--display);font-size:15px;text-transform:uppercase;padding:18px 12px;border:1px solid var(--bone);background:transparent;color:var(--bone);border-radius:0;text-align:center;text-decoration:none;display:block}
 .btn.solid{background:var(--bone);color:var(--ink)}
@@ -119,42 +122,58 @@ footer .tag:last-child{text-align:right}
 
   <section class="intro">
     <h2>Come celebrate with me</h2>
-    <p>Birthday + new residency. Pizza and bubbles from <span class="time">21:00</span>. Then we dance.</p>
+    <p>Birthday + new residency. Pizza and bubbles for everyone from <span class="time">21:00</span>. Then we dance.</p>
   </section>
 
   <section class="ask" id="ask">
-    <h2>Are you coming?</h2>
+    <h2>When are you coming?</h2>
     <div class="choice">
-      <button type="button" class="btn solid" id="yes">Yes</button>
-      <button type="button" class="btn no" id="no" aria-disabled="true">No</button>
+      <button type="button" class="btn solid" id="pick21"><b class="time">21&#8211;22</b>Birthday hangout</button>
+      <button type="button" class="btn" id="pick22"><b class="time">After 22</b>Guest list</button>
     </div>
+    <p class="hint" id="fullhint" hidden>The first hour is full. Join us from 22:00.</p>
+    <button type="button" class="link no" id="no" aria-disabled="true">Not coming</button>
     <p class="hint" id="nohint" aria-live="polite"></p>
   </section>
 
   <form id="form" hidden novalidate>
-    <div class="block">
+    <div class="block" id="blockA">
       <h3>Your name <span class="time">21:00</span></h3>
       <div class="fields">
-        <label for="f1">First name<input id="f1" name="f1" autocomplete="given-name" maxlength="40" required></label>
-        <label for="l1">Last name<input id="l1" name="l1" autocomplete="family-name" maxlength="40" required></label>
+        <label for="f1">First name<input id="f1" name="f1" autocomplete="given-name" maxlength="40"></label>
+        <label for="l1">Last name<input id="l1" name="l1" autocomplete="family-name" maxlength="40"></label>
       </div>
       <div class="row">
         <span class="lab" id="p1lab">Plus ones</span>
         <div class="step" role="group" aria-labelledby="p1lab">
-          <button type="button" id="p1minus" aria-label="One less plus one">&minus;</button>
-          <output id="p1" aria-live="polite">+0</output>
-          <button type="button" id="p1plus" aria-label="One more plus one">+</button>
+          <button type="button" data-k="p1" data-d="-1" aria-label="One less plus one">&minus;</button>
+          <output id="p1">+0</output>
+          <button type="button" data-k="p1" data-d="1" aria-label="One more plus one">+</button>
         </div>
       </div>
-    </div>
-
-    <div class="block">
-      <label for="email">Email, optional<input id="email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="For news about my next nights"></label>
+      <h3>Pizza <span>The rest eat everything</span></h3>
+      <div class="row">
+        <span class="lab" id="veglab">Vegetarian</span>
+        <div class="step" role="group" aria-labelledby="veglab">
+          <button type="button" data-k="veg" data-d="-1" aria-label="One less vegetarian">&minus;</button>
+          <output id="veg">0</output>
+          <button type="button" data-k="veg" data-d="1" aria-label="One more vegetarian">+</button>
+        </div>
+      </div>
+      <div class="row">
+        <span class="lab" id="veganlab">Vegan</span>
+        <div class="step" role="group" aria-labelledby="veganlab">
+          <button type="button" data-k="vegan" data-d="-1" aria-label="One less vegan">&minus;</button>
+          <output id="vegan">0</output>
+          <button type="button" data-k="vegan" data-d="1" aria-label="One more vegan">+</button>
+        </div>
+      </div>
+      <button type="button" class="link" id="lateon">+ Friends who come after 22:00</button>
     </div>
 
     <div class="block" id="late" hidden>
-      <p class="note">The first hour is kept small. More friends are very welcome from <span class="time">22:00</span>. Add them here.</p>
-      <h3>Guest list entry <span class="time">from 22:00</span></h3>
+      <p class="note" id="latenote">The first hour is kept small. More friends are very welcome from <span class="time">22:00</span>. Add them here.</p>
+      <h3>Guest list <span class="time">from 22:00</span></h3>
       <div class="fields">
         <label for="f2">First name<input id="f2" name="f2" maxlength="40"></label>
         <label for="l2">Last name<input id="l2" name="l2" maxlength="40"></label>
@@ -163,9 +182,9 @@ footer .tag:last-child{text-align:right}
       <div class="row">
         <span class="lab" id="p2lab">Plus ones</span>
         <div class="step" role="group" aria-labelledby="p2lab">
-          <button type="button" id="p2minus" aria-label="One less plus one">&minus;</button>
-          <output id="p2" aria-live="polite">+0</output>
-          <button type="button" id="p2plus" aria-label="One more plus one">+</button>
+          <button type="button" data-k="p2" data-d="-1" aria-label="One less plus one">&minus;</button>
+          <output id="p2">+0</output>
+          <button type="button" data-k="p2" data-d="1" aria-label="One more plus one">+</button>
         </div>
       </div>
       <button type="button" class="link" id="lateoff">Remove this entry</button>
@@ -173,6 +192,7 @@ footer .tag:last-child{text-align:right}
 
     <p class="err" id="err" role="alert" hidden></p>
     <button type="submit" class="btn solid cta" id="send">Confirm RSVP</button>
+    <button type="button" class="link" id="back">Change time</button>
   </form>
 
   <section class="done" id="done" hidden>
@@ -217,71 +237,105 @@ var CLOSES = new Date("2026-11-20T20:00:00+01:00");
 // Link to an Instagram channel for updates. Empty hides the link.
 var INSTAGRAM = "";
 
+var EARLY_CAP = 40;
 var $ = function (id) { return document.getElementById(id); };
-var MAX1 = 2, MAX2 = 8;
-var s = { p1: 0, p2: 0, late: false, busy: false };
+var MAX = { p1: 3, p2: 8 };
+var s = { mode: "", p1: 0, p2: 0, veg: 0, vegan: 0, late: false, busy: false, spots: null };
 
 function showClosed() { $("ask").hidden = true; $("form").hidden = true; $("done").hidden = true; $("closed").hidden = false; }
 if (new Date() > CLOSES) showClosed();
 if (INSTAGRAM) { $("insta").href = INSTAGRAM; $("insta").hidden = false; }
 
 function render() {
-  $("p1").textContent = "+" + s.p1;
-  $("p2").textContent = "+" + s.p2;
-  $("p1minus").disabled = s.p1 === 0;
-  $("p1plus").disabled = s.p1 === MAX1 && s.late;
-  $("p2minus").disabled = s.p2 === 0;
-  $("p2plus").disabled = s.p2 === MAX2;
-  $("late").hidden = !s.late;
+  var party = 1 + s.p1;
+  if (s.veg + s.vegan > party) { s.vegan = Math.min(s.vegan, party); s.veg = Math.min(s.veg, party - s.vegan); }
+  $("p1").textContent = "+" + s.p1; $("p2").textContent = "+" + s.p2;
+  $("veg").textContent = s.veg; $("vegan").textContent = s.vegan;
+  var full = s.spots === 0;
+  $("pick21").disabled = full; $("fullhint").hidden = !full;
+  $("blockA").hidden = s.mode !== "a";
+  $("late").hidden = !(s.mode === "b" || s.late);
+  $("latenote").hidden = s.mode === "b"; $("lateoff").hidden = s.mode === "b";
+  $("lateon").hidden = s.late;
+  var lim = { p1: [0, MAX.p1], p2: [0, MAX.p2], veg: [0, party - s.vegan], vegan: [0, party - s.veg] };
+  document.querySelectorAll(".step button").forEach(function (b) {
+    var k = b.dataset.k, d = +b.dataset.d, v = s[k] + d;
+    b.disabled = v < lim[k][0] || (v > lim[k][1] && !(k === "p1" && !s.late));
+  });
   $("send").disabled = s.busy;
   $("send").textContent = s.busy ? "Sending" : "Confirm RSVP";
 }
 
-$("yes").addEventListener("click", function () { $("ask").hidden = true; $("form").hidden = false; $("f1").focus(); });
+document.querySelectorAll(".step button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var k = b.dataset.k, d = +b.dataset.d;
+    if (k === "p1" && d > 0 && s.p1 === MAX.p1) { s.late = true; render(); $("f2").focus(); return; }
+    s[k] += d; render();
+  });
+});
+function pick(mode) { s.mode = mode; $("err").hidden = true; $("ask").hidden = true; $("form").hidden = false; render(); $(mode === "a" ? "f1" : "f2").focus(); }
+$("pick21").addEventListener("click", function () { pick("a"); });
+$("pick22").addEventListener("click", function () { pick("b"); });
+$("back").addEventListener("click", function () { $("form").hidden = true; $("ask").hidden = false; });
+$("lateon").addEventListener("click", function () { s.late = true; render(); $("f2").focus(); });
+$("lateoff").addEventListener("click", function () { s.late = false; s.p2 = 0; $("f2").value = ""; $("l2").value = ""; render(); });
 $("no").addEventListener("click", function () {
   var b = $("no");
   b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake");
   $("nohint").textContent = "No is not on the menu tonight.";
 });
-$("p1minus").addEventListener("click", function () { if (s.p1 > 0) s.p1--; render(); });
-$("p1plus").addEventListener("click", function () {
-  if (s.p1 < MAX1) { s.p1++; }
-  else if (!s.late) { s.late = true; render(); $("f2").focus(); return; }
-  render();
-});
-$("p2minus").addEventListener("click", function () { if (s.p2 > 0) s.p2--; render(); });
-$("p2plus").addEventListener("click", function () { if (s.p2 < MAX2) s.p2++; render(); });
-$("lateoff").addEventListener("click", function () { s.late = false; s.p2 = 0; $("f2").value = ""; $("l2").value = ""; render(); });
 
 function val(id) { return $(id).value.replace(/\s+/g, " ").trim(); }
 function fail(msg, focusId) { $("err").textContent = msg; $("err").hidden = false; if (focusId) $(focusId).focus(); }
+var HEAD = { "apikey": SB_KEY, "Content-Type": "application/json", "Prefer": "return=minimal" };
+
+// How many places are left in the first hour. The database returns one number, never names.
+function loadSpots() {
+  return fetch(SB_URL + "/rest/v1/rpc/early_spots_left", { method: "POST", headers: HEAD, body: "{}" })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (n) { s.spots = typeof n === "number" ? n : null; render(); })
+    .catch(function () {});
+}
+loadSpots();
+
+// 201 = saved. 409 = this name is on the list already, also fine.
+function save(row) {
+  return fetch(SB_URL + "/rest/v1/rsvps", { method: "POST", headers: HEAD, body: JSON.stringify(row) })
+    .then(function (r) {
+      if (r.status === 201 || r.status === 409) return "ok";
+      return r.text().then(function (t) {
+        // Database not updated yet: save without the food counts.
+        if ("vegetarian" in row && /PGRST204|vegetarian|vegan/.test(t)) { var c = Object.assign({}, row); delete c.vegetarian; delete c.vegan; return save(c); }
+        return /first hour full/.test(t) ? "full" : "error";
+      });
+    });
+}
 
 $("form").addEventListener("submit", function (e) {
   e.preventDefault();
   if (s.busy) return;
   $("err").hidden = true;
-  var email = val("email"), gid = Math.random().toString(36).slice(2, 10);
-  var rows = [{ entry: "21:00", first_name: val("f1"), last_name: val("l1"), plus_ones: s.p1, email: email || null, group_id: gid }];
-  if (!rows[0].first_name) return fail("Enter your first name.", "f1");
-  if (!rows[0].last_name) return fail("Enter your last name.", "l1");
-  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail("Check the email address, or leave it empty.", "email");
-  if (s.late) {
+  var gid = Math.random().toString(36).slice(2, 10), rows = [];
+  if (s.mode === "a") {
+    var f1 = val("f1"), l1 = val("l1");
+    if (!f1) return fail("Enter your first name.", "f1");
+    if (!l1) return fail("Enter your last name.", "l1");
+    if (s.spots !== null && 1 + s.p1 > s.spots) return fail(s.spots === 0 ? "The first hour is full. Join us from 22:00." : "Only " + s.spots + " places left in the first hour. Bring fewer plus ones, or add friends for 22:00.");
+    rows.push({ entry: "21:00", first_name: f1, last_name: l1, plus_ones: s.p1, vegetarian: s.veg, vegan: s.vegan, group_id: gid });
+  }
+  if (s.mode === "b" || s.late) {
     var f2 = val("f2"), l2 = val("l2");
-    if (!f2 || !l2) return fail("Enter a first and last name for the 22:00 entry, or remove it.", f2 ? "l2" : "f2");
-    rows.push({ entry: "22:00", first_name: f2, last_name: l2, plus_ones: s.p2, email: null, group_id: gid });
+    if (!f2 || !l2) return fail(s.mode === "b" ? "Enter your first and last name." : "Enter a first and last name for the 22:00 entry, or remove it.", f2 ? "l2" : "f2");
+    rows.push({ entry: "22:00", first_name: f2, last_name: l2, plus_ones: s.p2, group_id: gid });
   }
   s.busy = true; render();
-  // One request per row. 201 = saved, 409 = this name is on the list already (also fine).
-  Promise.all(rows.map(function (row) {
-    return fetch(SB_URL + "/rest/v1/rsvps", {
-      method: "POST",
-      headers: { "apikey": SB_KEY, "Content-Type": "application/json", "Prefer": "return=minimal" },
-      body: JSON.stringify(row)
-    }).then(function (r) { return r.status; });
-  })).then(function (codes) {
+  // Save the 21:00 row first. If the first hour is full, nothing else is saved.
+  rows.reduce(function (p, row) {
+    return p.then(function (res) { return res === "ok" ? save(row) : res; });
+  }, Promise.resolve("ok")).then(function (res) {
     s.busy = false; render();
-    var ok = codes.every(function (c) { return c === 201 || c === 409; });
-    if (ok) { $("form").hidden = true; $("done").hidden = false; $("done").scrollIntoView({ block: "center" }); }
+    if (res === "ok") { $("form").hidden = true; $("done").hidden = false; $("done").scrollIntoView({ block: "center" }); }
+    else if (res === "full") { loadSpots(); fail("The first hour just filled up. Tap \"Change time\" and join us from 22:00."); }
     else if (new Date() > CLOSES) showClosed();
     else fail("Could not save. Try again in a moment.");
   }).catch(function () { s.busy = false; render(); fail("Could not send. Check your connection and try again."); });
